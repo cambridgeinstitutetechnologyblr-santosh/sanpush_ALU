@@ -1,8 +1,10 @@
+yaml_version: 6
+
 project:
   title: "Low-Power Approximate Multiplier"
   author: "Santosh"
-  discord: "your_discord_username"
-  description: "An energy-efficient approximate 4x4 multiplier implemented using SKY130 and OpenLane flow for low-power arithmetic applications."
+  discord: "santosh"
+  description: "An energy-efficient approximate 4x4 multiplier implemented using SKY130 and OpenLane flow."
   language: "Verilog"
   clock_hz: 50000000
 
