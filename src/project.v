@@ -10,30 +10,15 @@ module tt_um_example (
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
     output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+    output wire [7:0] uio_oe,   // IOs: Enable path
+    input  wire       ena,      // Enable
+    input  wire       clk,      // Clock
+    input  wire       rst_n     // Active-low reset
 );
 
-    // =========================================================================
+    // ============================================================
     // LOW-POWER APPROXIMATE 4x4 MULTIPLIER
-    // =========================================================================
-    //
-    // Inputs:
-    //   ui_in[3:0] = A[3:0]
-    //   ui_in[7:4] = B[3:0]
-    //
-    // Output:
-    //   uo_out[7:0] = Approximate Product
-    //
-    // Approximation Technique:
-    //   - Lower bits use simplified logic
-    //   - Carry propagation reduced
-    //   - Lower switching activity
-    //   - Reduced hardware complexity
-    //
-    // =========================================================================
+    // ============================================================
 
     wire [3:0] A;
     wire [3:0] B;
@@ -45,26 +30,46 @@ module tt_um_example (
 
     always @(*) begin
 
-        // LSB
+        // Initialize output
+        result = 8'b00000000;
+
+        // Approximate multiplication logic
+
+        // Bit 0
         result[0] = A[0] & B[0];
 
-        // Approximate lower partial products
+        // Bit 1
         result[1] = (A[1] & B[0]) ^
                     (A[0] & B[1]);
 
-        // Approximate middle stage
+        // Bit 2
         result[2] = (A[2] & B[0]) ^
                     (A[1] & B[1]) ^
                     (A[0] & B[2]);
 
-        // More accurate upper bits
-        result[7:3] = (A * B) >> 3;
+        // Bit 3
+        result[3] = (A[3] & B[0]) ^
+                    (A[2] & B[1]);
+
+        // Bit 4
+        result[4] = (A[3] & B[1]) ^
+                    (A[2] & B[2]);
+
+        // Bit 5
+        result[5] = (A[3] & B[2]) ^
+                    (A[2] & B[3]);
+
+        // Bit 6
+        result[6] = (A[3] & B[3]);
+
+        // Bit 7
+        result[7] = 1'b0;
 
     end
 
-    // =========================================================================
-    // OUTPUT ASSIGNMENTS
-    // =========================================================================
+    // ============================================================
+    // OUTPUT CONNECTIONS
+    // ============================================================
 
     assign uo_out = result;
 
@@ -72,9 +77,9 @@ module tt_um_example (
     assign uio_out = 8'b00000000;
     assign uio_oe  = 8'b00000000;
 
-    // =========================================================================
+    // ============================================================
     // UNUSED SIGNALS
-    // =========================================================================
+    // ============================================================
 
     wire _unused = &{ena, clk, rst_n, uio_in, 1'b0};
 
