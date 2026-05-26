@@ -8,33 +8,62 @@ from cocotb.triggers import ClockCycles
 
 @cocotb.test()
 async def test_project(dut):
-    dut._log.info("Start")
 
-    # Set the clock period to 10 us (100 KHz)
+    dut._log.info("Starting Low-Power Approximate Multiplier Test")
+
+    # Clock: 100 KHz
     clock = Clock(dut.clk, 10, unit="us")
     cocotb.start_soon(clock.start())
 
     # Reset
-    dut._log.info("Reset")
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+
+    await ClockCycles(dut.clk, 5)
+
     dut.rst_n.value = 1
 
-    dut._log.info("Test project behavior")
+    dut._log.info("Reset Complete")
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    # ============================================================
+    # TEST VECTORS
+    # ============================================================
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+    test_vectors = [
+        (3, 2),
+        (4, 5),
+        (7, 3),
+        (8, 8),
+        (15, 15),
+        (15, 10),
+        (9, 6),
+        (12, 11)
+    ]
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+    # ============================================================
+    # APPLY TESTS
+    # ============================================================
 
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    for A, B in test_vectors:
+
+        # ui_in[3:0]  = A
+        # ui_in[7:4]  = B
+        dut.ui_in.value = (B << 4) | A
+
+        await ClockCycles(dut.clk, 1)
+
+        result = dut.uo_out.value.integer
+
+        expected = A * B
+
+        dut._log.info(
+            f"A={A}, B={B}, Approx={result}, Exact={expected}"
+        )
+
+        # Approximate multiplier tolerance
+        assert abs(result - expected) <= 10, \
+            f"FAILED: A={A}, B={B}, Got={result}, Expected={expected}"
+
+    dut._log.info("ALL APPROXIMATE MULTIPLIER TESTS PASSED")
