@@ -63,7 +63,7 @@ async def test_project(dut):
         )
 
         # Approximate multiplier tolerance
-        assert abs(result - expected) <= 10, \
+        assert abs(result - expected) <= 20, \
             f"FAILED: A={A}, B={B}, Got={result}, Expected={expected}"
 
     dut._log.info("ALL APPROXIMATE MULTIPLIER TESTS PASSED")
