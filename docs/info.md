@@ -1,20 +1,49 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
+# Low-Power Approximate Multiplier
 
 ## How it works
 
-Explain how your project works
+This project implements a low-power approximate 4x4 multiplier using Verilog HDL.
+
+The design takes:
+- 4-bit input A
+- 4-bit input B
+
+and produces:
+- 8-bit approximate product output.
+
+Approximation techniques are used in lower partial product computation to reduce:
+- hardware complexity
+- switching activity
+- power consumption
+- area utilization
+
+The design is optimized for TinyTapeout SKY130 OpenLane flow.
+
+Inputs:
+- ui_in[3:0] = A[3:0]
+- ui_in[7:4] = B[3:0]
+
+Outputs:
+- uo_out[7:0] = Approximate Product
+
+Unused bidirectional IOs are tied to zero.
+
+---
 
 ## How to test
 
-Explain how to use your project
+Apply two 4-bit operands:
+- A through ui_in[3:0]
+- B through ui_in[7:4]
 
-## External hardware
+Observe the approximate multiplication result on:
+- uo_out[7:0]
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Example:
+- A = 7
+- B = 3
+
+Expected approximate result:
+- Close to decimal 21
+
+The output may slightly differ from exact multiplication because approximate arithmetic is intentionally used to reduce power and area.
